@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Scan to see what I built · FASO</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:#111;font:17px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.screen{min-height:100vh;display:grid;place-items:center;padding:20px}
+.card{width:100%;max-width:380px;text-align:center}
+.qr{width:100%;aspect-ratio:1;display:block}
+.qr svg{width:100%;height:100%;display:block}
+h1{font-size:1.5rem;line-height:1.15;margin:14px 0 4px}
+.url{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:15px;word-break:break-all;color:#333}
+.who{font-size:14px;color:#555;margin:8px 0 0}
+.tools{margin:22px 0 0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+button{font:inherit;font-weight:700;padding:11px 16px;border-radius:10px;border:1.5px solid #ccc;background:#fff;color:#111;cursor:pointer}
+.warn{background:#fff4d6;border-radius:10px;padding:12px 14px;font-size:15px;text-align:left;margin:0 0 14px}
+.sheet{display:none}
+@media print{
+  @page{size:letter;margin:.5in}
+  .screen{display:none}
+  .sheet{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .mini{height:2in;border:1px dashed #bbb;padding:.14in .16in;display:grid;grid-template-columns:1.62in 1fr;gap:.14in;align-items:center;break-inside:avoid}
+  .mini .qr{width:1.62in}
+  .mini b{font-size:12.5pt;line-height:1.15;display:block}
+  .mini span{display:block;font-size:8.5pt;color:#333;margin-top:4pt;word-break:break-all}
+  .mini em{display:block;font-style:normal;font-size:8pt;color:#555;margin-top:5pt}
+}
+</style>
+</head>
+<body>
+
+<div class="screen">
+  <div class="card">
+    <p class="warn" id="warn" hidden></p>
+    <div class="qr" id="qr" role="img" aria-label="QR code for the FASO site"></div>
+    <h1>Scan to see what I built</h1>
+    <div class="url" id="url"></div>
+    <p class="who">Benjermin · FASO · One Task, One Week</p>
+    <div class="tools">
+      <button type="button" id="print">Print 10 cards</button>
+      <button type="button" id="open">Open the site</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="sheet"></div>
+
+<script src="config.js"></script>
+<script src="vendor/qrcode.js"></script>
+<script>
+(function(){
+  var c = window.FASO_CONFIG || {};
+  // The QR points at the live site. Before the site address is set, it points at wherever this page is being served from.
+  var here = location.href.replace(/card\.html.*$/, '');
+  var target = /^https?:\/\//.test(c.siteUrl || '') ? c.siteUrl : here;
+  var local = /^file:|localhost|127\.0\.0\.1|192\.168\./.test(target);
+
+  function svgFor(text){
+    var q = qrcode(0, 'M'); q.addData(text); q.make();
+    var n = q.getModuleCount(), m = 4, size = n + m * 2, d = '';
+    for (var r = 0; r < n; r++) for (var col = 0; col < n; col++)
+      if (q.isDark(r, col)) d += 'M' + (col + m) + ' ' + (r + m) + 'h1v1h-1z';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + size + ' ' + size + '" shape-rendering="crispEdges">' +
+           '<rect width="100%" height="100%" fill="#fff"/><path d="' + d + '" fill="#000"/></svg>';
+  }
+
+  var svg = svgFor(target), shown = target.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  document.getElementById('qr').innerHTML = svg;
+  document.getElementById('url').textContent = shown;
+  if (local){
+    var w = document.getElementById('warn');
+    w.textContent = 'This code points at a preview address that only works on this computer. Set the live address first: node tools/set.mjs siteUrl "<your site address>"';
+    w.hidden = false;
+  }
+
+  var sheet = document.getElementById('sheet'), html = '';
+  for (var i = 0; i < 10; i++)
+    html += '<div class="mini"><div class="qr">' + svg + '</div><div><b>Scan to see what I built</b><span>' + shown +
+            '</span><em>Benjermin · FASO<br>One Task, One Week</em></div></div>';
+  sheet.innerHTML = html;
+
+  document.getElementById('print').addEventListener('click', function(){ window.print(); });
+  document.getElementById('open').addEventListener('click', function(){ location.href = target; });
+})();
+</script>
+</body>
+</html>

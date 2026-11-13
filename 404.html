@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Not here · FASO</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fbfaf6;color:#14171c;font:18px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:24px;text-align:center}
+@media (prefers-color-scheme:dark){body{background:#0e1116;color:#e8ecf1}a{color:#43c084}}
+a{color:#0b6b46;font-weight:700}
+</style>
+</head>
+<body>
+<div>
+  <p>That page isn't here.</p>
+  <p><a id="home" href="./">Go to the front page</a></p>
+</div>
+<script>
+// Works both on the plain GitHub address (/faso-site/...) and on a custom domain.
+(function(){
+  var m = location.pathname.match(/^\/faso-site\//);
+  document.getElementById('home').href = m ? '/faso-site/' : '/';
+})();
+</script>
+</body>
+</html>
